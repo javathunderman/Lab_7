@@ -22,23 +22,23 @@ int main(int argc, char **argv){
     moveit::planning_interface::MoveGroupInterface arm_move_group("manipulator");
 
     // Create instance of joint target plan
-    moveit::planning_interface::MoveGroupInterface::Plan joint_plan;
+    // moveit::planning_interface::MoveGroupInterface::Plan joint_plan;
 
-    std::map<std::string, double> joint_targets;
-    joint_targets["elbow_joint"] = 0.94;
-    joint_targets["shoulder_lift_joint"] = -1.13;
-    joint_targets["shoulder_pan_joint"] = 1.13;
-    joint_targets["wrist_1_joint"] = -1.51;
-    joint_targets["wrist_2_joint"] = 2.51;
-    joint_targets["wrist_3_joint"] = 3.39;
+    // std::map<std::string, double> joint_targets;
+    // joint_targets["elbow_joint"] = 0.94;
+    // joint_targets["shoulder_lift_joint"] = -1.13;
+    // joint_targets["shoulder_pan_joint"] = 1.13;
+    // joint_targets["wrist_1_joint"] = -1.51;
+    // joint_targets["wrist_2_joint"] = 2.51;
+    // joint_targets["wrist_3_joint"] = 3.39;
 
-    bool joint_plan_success;
-    joint_plan_success = ArmController::planToJointTargets(planning_options, arm_move_group, joint_plan, joint_targets);
+    // bool joint_plan_success;
+    // joint_plan_success = ArmController::planToJointTargets(planning_options, arm_move_group, joint_plan, joint_targets);
 
-    if(joint_plan_success){
-        ROS_INFO("Moving to joint target");
-        arm_move_group.execute(joint_plan);
-    }
+    // if(joint_plan_success){
+    //     ROS_INFO("Moving to joint target");
+    //     arm_move_group.execute(joint_plan);
+    // }
 
     // Create instance of pose target plan
     moveit::planning_interface::MoveGroupInterface::Plan pose_plan;
@@ -47,10 +47,10 @@ int main(int argc, char **argv){
     pose_target.position.x = 0.25;
     pose_target.position.y = 0.2;
     pose_target.position.z = 1.1;
-    pose_target.orientation.x = -0.707;
+    pose_target.orientation.x = 0.0;
     pose_target.orientation.y = 0.0;
-    pose_target.orientation.z = 0.0;
-    pose_target.orientation.w = 0.707;
+    pose_target.orientation.z = 0.707;
+    pose_target.orientation.w = 0.0;
 
     bool pose_plan_success;
     std::string reference_frame = "base_link";
@@ -62,25 +62,25 @@ int main(int argc, char **argv){
     }
 
     // Create instance of cartesian plan
-    moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
+    // moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
 
-    // Get the start Pose
-    geometry_msgs::Pose start_pose = arm_move_group.getCurrentPose().pose;
+    // // Get the start Pose
+    // geometry_msgs::Pose start_pose = arm_move_group.getCurrentPose().pose;
 
-    geometry_msgs::Pose end_pose = start_pose;
-    end_pose.position.x += 0.1;
-    end_pose.position.y -= 0.1;
-    end_pose.position.z -= 0.1;
+    // geometry_msgs::Pose end_pose = start_pose;
+    // end_pose.position.x += 0.1;
+    // end_pose.position.y -= 0.1;
+    // end_pose.position.z -= 0.1;
 
-    // Define waypoints for the cartesian path
-    std::vector<geometry_msgs::Pose> waypoints;
-    waypoints.push_back(end_pose);
+    // // Define waypoints for the cartesian path
+    // std::vector<geometry_msgs::Pose> waypoints;
+    // waypoints.push_back(end_pose);
 
-    moveit_msgs::RobotTrajectory trajectory;
-    trajectory = ArmController::planCartesianPath(start_pose, waypoints, reference_frame, arm_move_group);
+    // moveit_msgs::RobotTrajectory trajectory;
+    // trajectory = ArmController::planCartesianPath(start_pose, waypoints, reference_frame, arm_move_group);
 
-    n.setParam("/record_pose", true);
-    arm_move_group.execute(trajectory);
-    n.setParam("/record_pose", false);
+    // n.setParam("/record_pose", true);
+    // arm_move_group.execute(trajectory);
+    // n.setParam("/record_pose", false);
 
 }
