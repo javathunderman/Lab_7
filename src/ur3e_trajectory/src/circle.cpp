@@ -17,8 +17,8 @@ int main(int argc, char **argv){
     planning_options.goal_position_tolerance = 0.01;
     planning_options.goal_orientation_tolerance = 0.01;
     planning_options.goal_joint_tolerance = 0.01;
-    planning_options.velocity_scaling_factor = 0.4;
-    planning_options.acceleration_scaling_factor = 0.4;
+    planning_options.velocity_scaling_factor = 0.1;
+    planning_options.acceleration_scaling_factor = 0.1;
 
     // Create an instance of MoveGroupInterface
     moveit::planning_interface::MoveGroupInterface arm_move_group("manipulator");
@@ -69,37 +69,11 @@ int main(int argc, char **argv){
     moveit::planning_interface::MoveGroupInterface::Plan cartesian_plan;
 
     geometry_msgs::Pose start_pose = arm_move_group.getCurrentPose().pose;
-    std::cout << start_pose.position.x << " " << start_pose.position.y << " " << start_pose.position.z;
     geometry_msgs::Pose end_pose = start_pose;
     std::vector<geometry_msgs::Pose> waypoints;
 
     double z = 1.05;
     double xyDist = 0.54;
-
-    end_pose.position.x = xyDist * cos(0.0);
-    end_pose.position.y = xyDist * sin(0.0);
-    end_pose.position.z = z;
-
-    waypoints.push_back(end_pose);
-    // Define waypoints for the cartesian path
-
-    // generate waypoints for first half of circle (10 points toatl 0 <= tehta <= pi)
-    for (int i = 1; i < 10; i++) {
-        end_pose.position.x = xyDist * cos(M_PI / 10 * i);
-        end_pose.position.y = xyDist * sin(M_PI / 10 * i);
-        end_pose.position.z += 0.01;
-
-        waypoints.push_back(end_pose);
-    }
-
-    // do the same in opposite direction (from pi to 2pi)
-    for (int i = 10; i < 20; i++) {
-        end_pose.position.x = xyDist * cos(M_PI / 10 * i);
-        end_pose.position.y = xyDist * sin(M_PI / 10 * i);
-        end_pose.position.z -= 0.01;
-        
-        waypoints.push_back(end_pose);
-    }
 
     end_pose.position.x = xyDist * cos(0.0);
     end_pose.position.y = xyDist * sin(0.0);
@@ -113,5 +87,63 @@ int main(int argc, char **argv){
     n.setParam("/record_pose", true);
     arm_move_group.execute(trajectory);
     n.setParam("/record_pose", false);
+
+
+    std::vector<double> current_angles = arm_move_group.getCurrentJointValues();
+    joint_targets["elbow_joint"] = current_angles[0];
+    joint_targets["shoulder_lift_joint"] = current_angles[1];
+    joint_targets["shoulder_pan_joint"] = 0;
+    joint_targets["wrist_1_joint"] = current_angles[3];
+    joint_targets["wrist_2_joint"] = current_angles[4];
+    joint_targets["wrist_3_joint"] = current_angles[5];
+    
+
+    joint_plan_success = ArmController::planToJointTargets(planning_options, arm_move_group, joint_plan, joint_targets);
+    if (joint_plan_success){
+        ROS_INFO("Moving to joint target");
+        arm_move_group.execute(joint_plan);
+    }
+
+    joint_targets["shoulder_pan_joint"] = (3.0 * M_PI) / 2.0;
+    joint_plan_success = ArmController::planToJointTargets(planning_options, arm_move_group, joint_plan, joint_targets);
+
+    if (joint_plan_success){
+        ROS_INFO("Moving to joint target");
+        arm_move_group.execute(joint_plan);
+    }
+
+    
+    // Define waypoints for the cartesian path
+
+    // // generate waypoints for first half of circle (10 points toatl 0 <= tehta <= pi)
+    // for (int i = 1; i < 10; i++) {
+    //     end_pose.position.x = xyDist * cos(M_PI / 10 * i);
+    //     end_pose.position.y = xyDist * sin(M_PI / 10 * i);
+    //     // end_pose.position.z += 0.01;
+
+    //     waypoints.push_back(end_pose);
+    // }
+
+    // // do the same in opposite direction (from pi to 2pi)
+    // for (int i = 10; i < 20; i++) {
+    //     end_pose.position.x = xyDist * cos(M_PI / 10 * i);
+    //     end_pose.position.y = xyDist * sin(M_PI / 10 * i);
+    //     // end_pose.position.z -= 0.01;
+        
+    //     waypoints.push_back(end_pose);
+    // }
+
+    // end_pose.position.x = xyDist * cos(0.0);
+    // end_pose.position.y = xyDist * sin(0.0);
+    // end_pose.position.z = z;
+
+    // waypoints.push_back(end_pose);
+
+    // moveit_msgs::RobotTrajectory trajectory;
+    // trajectory = ArmController::planCartesianPath(start_pose, waypoints, reference_frame, arm_move_group);
+
+    // n.setParam("/record_pose", true);
+    // arm_move_group.execute(trajectory);
+    // n.setParam("/record_pose", false);
 
 }

@@ -15,8 +15,8 @@ int main(int argc, char **argv){
     planning_options.goal_position_tolerance = 0.01;
     planning_options.goal_orientation_tolerance = 0.01;
     planning_options.goal_joint_tolerance = 0.01;
-    planning_options.velocity_scaling_factor = 0.4;
-    planning_options.acceleration_scaling_factor = 0.4;
+    planning_options.velocity_scaling_factor = 0.1;
+    planning_options.acceleration_scaling_factor = 0.1;
 
     // Create an instance of MoveGroupInterface
     moveit::planning_interface::MoveGroupInterface arm_move_group("manipulator");
